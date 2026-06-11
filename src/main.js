@@ -1,12 +1,12 @@
 import { payStartFee, payEndFee } from './web3.js';
 
 // ─── Canvas setup ─────────────────────────────────────────────────────────────
-const canvas  = document.getElementById('canvas');
-const ctx     = canvas.getContext('2d');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 const diffBtn = document.getElementById('difficulty');
 
 let score = 0;
-const brickRowCount    = 9;
+const brickRowCount = 9;
 const brickColumnCount = 5;
 let animId = null;
 
@@ -31,7 +31,14 @@ const paddle = {
 };
 
 // ─── Bricks ───────────────────────────────────────────────────────────────────
-const brickInfo = { w: 65, h: 18, padding: 9, offsetX: 45, offsetY: 60, visible: true };
+const brickInfo = {
+  w: 65,
+  h: 18,
+  padding: 9,
+  offsetX: 45,
+  offsetY: 60,
+  visible: true,
+};
 const bricks = [];
 for (let i = 0; i < brickRowCount; i++) {
   bricks[i] = [];
@@ -89,7 +96,8 @@ function moveBall() {
   ball.y += ball.dy;
 
   // Wall collision (left / right)
-  if (ball.x + ball.size > canvas.width || ball.x - ball.size < 0) ball.dx *= -1;
+  if (ball.x + ball.size > canvas.width || ball.x - ball.size < 0)
+    ball.dx *= -1;
 
   // Wall collision (top)
   if (ball.y - ball.size < 0) ball.dy *= -1;
@@ -128,19 +136,24 @@ function moveBall() {
     pauseBall();
     pausePaddle();
     document.querySelector('.lose').style.display = 'block';
-    payEndFee(); // fire-and-forget
   }
 }
 
-function pauseBall()   { ball.speed = 0; ball.dx = 0; ball.dy = 0; }
-function pausePaddle() { paddle.speed = 0; paddle.dx = 0; }
+function pauseBall() {
+  ball.speed = 0;
+  ball.dx = 0;
+  ball.dy = 0;
+}
+function pausePaddle() {
+  paddle.speed = 0;
+  paddle.dx = 0;
+}
 
 function increaseScore() {
   score++;
   if (score % (brickRowCount * brickColumnCount) === 0) {
     showAllBricks();
     document.querySelector('.win').style.display = 'block';
-    payEndFee(); // fire-and-forget
   }
 }
 
@@ -171,7 +184,9 @@ window.startGame = function () {
   diffBtn.style.display = 'block';
 };
 
-function hideDiff() { diffBtn.style.display = 'none'; }
+function hideDiff() {
+  diffBtn.style.display = 'none';
+}
 
 async function launchWithFee(speed, dx, dy) {
   hideDiff();
@@ -185,68 +200,98 @@ async function launchWithFee(speed, dx, dy) {
   if (overlay) overlay.style.display = 'none';
 
   ball.speed = speed;
-  ball.dx    = dx;
-  ball.dy    = dy;
+  ball.dx = dx;
+  ball.dy = dy;
   if (animId) cancelAnimationFrame(animId);
   update();
 }
 
-window.easyMode   = () => launchWithFee(3.8,  4,    -4);
-window.mediumMode = () => launchWithFee(4.8,  5.2, -5.2);
-window.hardMode   = () => launchWithFee(5.6,  5.9, -5.9);
+window.easyMode = () => launchWithFee(3.8, 4, -4);
+window.mediumMode = () => launchWithFee(4.8, 5.2, -5.2);
+window.hardMode = () => launchWithFee(5.6, 5.9, -5.9);
 
 // ─── Keyboard ─────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Right' || e.key === 'ArrowRight') paddle.dx =  paddle.speed;
-  else if (e.key === 'Left' || e.key === 'ArrowLeft')  paddle.dx = -paddle.speed;
+  if (e.key === 'Right' || e.key === 'ArrowRight') paddle.dx = paddle.speed;
+  else if (e.key === 'Left' || e.key === 'ArrowLeft') paddle.dx = -paddle.speed;
 });
 document.addEventListener('keyup', (e) => {
-  if (['Right', 'ArrowRight', 'Left', 'ArrowLeft'].includes(e.key)) paddle.dx = 0;
+  if (['Right', 'ArrowRight', 'Left', 'ArrowLeft'].includes(e.key))
+    paddle.dx = 0;
 });
 
 // ─── Touch Controls (mobile buttons) ─────────────────────────────────────────
-const touchLeft  = document.getElementById('touch-left');
+const touchLeft = document.getElementById('touch-left');
 const touchRight = document.getElementById('touch-right');
 
-function startLeft()  { paddle.dx = -paddle.speed; }
-function startRight() { paddle.dx =  paddle.speed; }
-function stopTouch()  { paddle.dx = 0; }
+function startLeft() {
+  paddle.dx = -paddle.speed;
+}
+function startRight() {
+  paddle.dx = paddle.speed;
+}
+function stopTouch() {
+  paddle.dx = 0;
+}
 
-touchLeft?.addEventListener('touchstart',  (e) => { e.preventDefault(); startLeft();  }, { passive: false });
-touchLeft?.addEventListener('touchend',    stopTouch);
+touchLeft?.addEventListener(
+  'touchstart',
+  (e) => {
+    e.preventDefault();
+    startLeft();
+  },
+  { passive: false },
+);
+touchLeft?.addEventListener('touchend', stopTouch);
 touchLeft?.addEventListener('touchcancel', stopTouch);
-touchRight?.addEventListener('touchstart',  (e) => { e.preventDefault(); startRight(); }, { passive: false });
-touchRight?.addEventListener('touchend',    stopTouch);
+touchRight?.addEventListener(
+  'touchstart',
+  (e) => {
+    e.preventDefault();
+    startRight();
+  },
+  { passive: false },
+);
+touchRight?.addEventListener('touchend', stopTouch);
 touchRight?.addEventListener('touchcancel', stopTouch);
 
 // Also support mouse hold (desktop fallback for buttons)
-touchLeft?.addEventListener('mousedown',  startLeft);
+touchLeft?.addEventListener('mousedown', startLeft);
 touchRight?.addEventListener('mousedown', startRight);
 document.addEventListener('mouseup', stopTouch);
 
 // ─── Canvas swipe (drag paddle directly on canvas) ────────────────────────────
 let lastTouchX = null;
-canvas.addEventListener('touchstart', (e) => {
-  lastTouchX = e.touches[0].clientX;
-}, { passive: true });
-canvas.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-  if (lastTouchX === null) return;
-  const dx = e.touches[0].clientX - lastTouchX;
-  // Scale dx by canvas internal vs displayed width ratio
-  const scaleX = canvas.width / canvas.getBoundingClientRect().width;
-  paddle.x += dx * scaleX;
-  if (paddle.x < 0) paddle.x = 0;
-  if (paddle.x + paddle.w > canvas.width) paddle.x = canvas.width - paddle.w;
-  lastTouchX = e.touches[0].clientX;
-}, { passive: false });
-canvas.addEventListener('touchend', () => { lastTouchX = null; });
-
+canvas.addEventListener(
+  'touchstart',
+  (e) => {
+    lastTouchX = e.touches[0].clientX;
+  },
+  { passive: true },
+);
+canvas.addEventListener(
+  'touchmove',
+  (e) => {
+    e.preventDefault();
+    if (lastTouchX === null) return;
+    const dx = e.touches[0].clientX - lastTouchX;
+    // Scale dx by canvas internal vs displayed width ratio
+    const scaleX = canvas.width / canvas.getBoundingClientRect().width;
+    paddle.x += dx * scaleX;
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.w > canvas.width) paddle.x = canvas.width - paddle.w;
+    lastTouchX = e.touches[0].clientX;
+  },
+  { passive: false },
+);
+canvas.addEventListener('touchend', () => {
+  lastTouchX = null;
+});
 
 // ─── Rules panel ──────────────────────────────────────────────────────────────
 const rulesBtn = document.getElementById('rules-btn');
 const closeBtn = document.getElementById('close-btn');
-const rules    = document.getElementById('rules');
+const rules = document.getElementById('rules');
 rulesBtn?.addEventListener('click', () => rules.classList.add('show'));
 closeBtn?.addEventListener('click', () => rules.classList.remove('show'));
 
