@@ -1,0 +1,32 @@
+# ── Environment & Secrets ─────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Dependencies ───────────────────────────────────────────────
+node_modules/
+
+# ── Vite build output ──────────────────────────────────────────
+dist/
+dist-ssr/
+
+# ── Hardhat / Solidity ─────────────────────────────────────────
+artifacts/
+cache/
+typechain/
+typechain-types/
+
+# ── OS & Editor ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+*.local
+
+# ── IDE ────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

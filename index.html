@@ -1,44 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel = "stylesheet" href="./style.css">
-    <title>Brick Breaker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Brick Breaker – a classic arcade game running on Base Mainnet." />
+  <meta name="base:app_id" content="6a2a6f4b65478aa1565a9f03" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+  <title>Brick Breaker · Base</title>
 </head>
 <body>
-    <h1 class="heading">Brick Breaker</h1>
-    <button id="rules-btn" class="btn rules-btn">Show Rules</button>
-    <div id="rules" class="rules">
-        <h2>How to Play:</h2>
-        <p> Use your right and left keys to move the paddle to bounce the ball up and break the blocks.</p> 
-        <p> If you miss the ball, your score and the blocks will reset.</p>
-        <button id="close-btn" class="btn">Close</button>
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header class="site-header">
+    <h1 class="heading">⬛ Brick Breaker</h1>
+
+    <div class="header-actions">
+      <!-- Wallet -->
+      <button id="connect-btn" class="btn btn--wallet">Connect Wallet</button>
+      <div id="wallet-info" class="wallet-info" style="display:none">
+        <span class="wallet-dot"></span>
+        <span id="wallet-addr" class="wallet-addr">0x…</span>
+      </div>
+
+      <!-- Rules -->
+      <button id="rules-btn" class="btn btn--rules">Rules</button>
     </div>
-    <div class="game-wrapper">
-        <div class="main"></div>
-            <div id="start" class="start">
-                <button class="start-btn" onclick="startGame()">Start Game</button>
-            </div>
-            <div id="difficulty" class="difficulty">
-                <p>Choose Difficulty level</p>
-                <button class="diff-btn" onclick="easyMode()">Easy</button>
-                <button class="diff-btn" onclick="mediumMode()">Medium</button>
-                <button class="diff-btn" onclick="hardMode()">Hard</button>
-            </div>
-            <div class="lose">
-                <h2>GAME OVER</h2>
-                <h3>Better luck next time!</h3>
-                <button class="btn" onclick="window.location.reload()">Restart</button>
-            </div>
-            <div class="win">
-                <h2>YOU WIN!</h2>
-                <h3>Winner winner chicken dinner!</h3>
-                <button class="btn" onclick="window.location.reload()">Restart</button>
-            </div>
+  </header>
+
+  <!-- ── Rules modal ────────────────────────────────────────── -->
+  <div id="rules" class="rules">
+    <h2>How to Play</h2>
+    <p>Use <kbd>←</kbd> <kbd>→</kbd> arrow keys to move the paddle and bounce the ball into the bricks.</p>
+    <p>Miss the ball? Score resets and bricks come back.</p>
+    <button id="close-btn" class="btn btn--rules">Close</button>
+  </div>
+
+  <!-- ── Tx status bar ──────────────────────────────────────── -->
+  <div id="tx-status" class="tx-status" style="display:none"></div>
+
+  <!-- ── Game area ──────────────────────────────────────────── -->
+  <div class="game-wrapper">
+
+    <!-- Start screen -->
+    <div id="start" class="overlay-screen">
+      <div class="overlay-card">
+        <p class="overlay-label">Ready?</p>
+        <button id="start-game-btn" class="btn btn--primary" onclick="startGame()">Start Game</button>
+        <p class="overlay-hint">Connect your wallet first to play on-chain ⛓️</p>
+      </div>
     </div>
+
+    <!-- Difficulty screen -->
+    <div id="difficulty" class="overlay-screen" style="display:none">
+      <div class="overlay-card">
+        <p class="overlay-label">Choose difficulty</p>
+        <button class="btn btn--diff btn--easy"   onclick="easyMode()">Easy</button>
+        <button class="btn btn--diff btn--medium" onclick="mediumMode()">Medium</button>
+        <button class="btn btn--diff btn--hard"   onclick="hardMode()">Hard</button>
+      </div>
+    </div>
+
+    <!-- Tx loading overlay (blocks play while tx pending) -->
+    <div id="tx-overlay" class="overlay-screen" style="display:none">
+      <div class="overlay-card">
+        <div class="spinner"></div>
+        <p class="overlay-label">Xác nhận giao dịch…</p>
+        <p class="overlay-hint">Vui lòng xác nhận trong MetaMask</p>
+      </div>
+    </div>
+
+    <!-- Lose screen -->
+    <div class="lose overlay-screen" style="display:none">
+      <div class="overlay-card">
+        <h2>💥 GAME OVER</h2>
+        <p>Better luck next time!</p>
+        <button class="btn btn--primary" onclick="window.location.reload()">Restart</button>
+      </div>
+    </div>
+
+    <!-- Win screen -->
+    <div class="win overlay-screen" style="display:none">
+      <div class="overlay-card">
+        <h2>🏆 YOU WIN!</h2>
+        <p>Winner winner chicken dinner!</p>
+        <button class="btn btn--primary" onclick="window.location.reload()">Play Again</button>
+      </div>
+    </div>
+
     <canvas id="canvas" width="750" height="520"></canvas>
-    <script src="./index.js"></script>
+  </div>
+
+  <!-- ── Touch Controls (mobile only) ──────────────────────── -->
+  <div class="touch-controls">
+    <button id="touch-left"  class="touch-btn" aria-label="Move left">&#8592;</button>
+    <span class="touch-hint" style="color:var(--muted);font-size:0.78rem;">hold to move</span>
+    <button id="touch-right" class="touch-btn" aria-label="Move right">&#8594;</button>
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <span>Built on <a href="https://base.org" target="_blank" rel="noopener">Base</a> · Chain ID 8453</span>
+  </footer>
+
+
+  <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/web3.js"></script>
 </body>
 </html>
