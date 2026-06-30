@@ -1,10 +1,14 @@
 import { ethers } from 'ethers';
+import { Attribution } from 'ox/erc8021';
 import {
   BASE_CHAIN_HEX,
   BASE_RPC,
   CONTRACT_ADDRESS,
   CONTRACT_ABI,
 } from './lib/contract.js';
+
+// ─── Builder Code (bc_zcfcz746) ───────────────────────────────────────────────
+const DATA_SUFFIX = Attribution.toDataSuffix({ codes: ['bc_zcfcz746'] });
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let wallet = null; // { provider, signer, address }
@@ -90,12 +94,11 @@ export async function payStartFee() {
   try {
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet.signer);
     const fee = await contract.gameStartFee();
-    
-    // Append builder code bc_zcfcz746 to transaction data
+
+    // Attach builder code via ox/erc8021 Attribution (same as blackjack)
     const txReq = await contract.payGameStart.populateTransaction({ value: fee });
-    const builderCodeHex = ethers.hexlify(ethers.toUtf8Bytes('bc_zcfcz746')).replace('0x', '');
-    txReq.data = txReq.data + builderCodeHex;
-    
+    txReq.data = txReq.data + DATA_SUFFIX.slice(2); // slice off '0x' prefix
+
     const tx = await wallet.signer.sendTransaction(txReq);
     setTxStatus('Waiting for blockchain confirmation...', 'pending');
     await tx.wait();
@@ -122,12 +125,11 @@ export async function payEndFee() {
   try {
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet.signer);
     const fee = await contract.gameEndFee();
-    
-    // Append builder code bc_zcfcz746 to transaction data
+
+    // Attach builder code via ox/erc8021 Attribution (same as blackjack)
     const txReq = await contract.payGameEnd.populateTransaction({ value: fee });
-    const builderCodeHex = ethers.hexlify(ethers.toUtf8Bytes('bc_zcfcz746')).replace('0x', '');
-    txReq.data = txReq.data + builderCodeHex;
-    
+    txReq.data = txReq.data + DATA_SUFFIX.slice(2); // slice off '0x' prefix
+
     const tx = await wallet.signer.sendTransaction(txReq);
     await tx.wait();
     setTxStatus('End fee sent!', 'success');
