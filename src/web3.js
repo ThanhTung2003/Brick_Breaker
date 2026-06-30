@@ -31,7 +31,7 @@ function setTxStatus(msg, type = 'info') {
 // ─── Connect Wallet ───────────────────────────────────────────────────────────
 export async function connectWallet() {
   if (!window.ethereum) {
-    alert('MetaMask không tìm thấy. Hãy cài MetaMask để dùng tính năng on-chain.');
+    alert('MetaMask not found. Please install MetaMask to use on-chain features.');
     return null;
   }
   try {
@@ -74,7 +74,7 @@ export async function connectWallet() {
     return wallet;
   } catch (err) {
     console.error('Wallet connect failed:', err);
-    alert('Kết nối ví thất bại: ' + (err?.message || err));
+    alert('Wallet connection failed: ' + (err?.message || err));
     return null;
   }
 }
@@ -85,22 +85,28 @@ export async function payStartFee() {
   if (CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') return 'skip';
 
   feeStatus = 'paying';
-  setTxStatus('⏳ Đang xác nhận giao dịch bắt đầu…', 'pending');
+  setTxStatus('Confirming start transaction...', 'pending');
 
   try {
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet.signer);
     const fee = await contract.gameStartFee();
-    const tx  = await contract.payGameStart({ value: fee });
-    setTxStatus('⏳ Chờ xác nhận trên blockchain…', 'pending');
+    
+    // Append builder code bc_zcfcz746 to transaction data
+    const txReq = await contract.payGameStart.populateTransaction({ value: fee });
+    const builderCodeHex = ethers.hexlify(ethers.toUtf8Bytes('bc_zcfcz746')).replace('0x', '');
+    txReq.data = txReq.data + builderCodeHex;
+    
+    const tx = await wallet.signer.sendTransaction(txReq);
+    setTxStatus('Waiting for blockchain confirmation...', 'pending');
     await tx.wait();
     feeStatus = 'ok';
-    setTxStatus('✅ Thanh toán thành công! Bắt đầu chơi…', 'success');
+    setTxStatus('Payment successful! Starting game...', 'success');
     setTimeout(() => setTxStatus('', ''), 3000);
     return 'ok';
   } catch (e) {
     console.warn('payStartFee failed:', e.message);
     feeStatus = 'skip';
-    setTxStatus('⚠️ Giao dịch thất bại, chơi miễn phí.', 'warn');
+    setTxStatus('Transaction failed, playing for free.', 'warn');
     setTimeout(() => setTxStatus('', ''), 3000);
     return 'skip';
   }
@@ -111,14 +117,20 @@ export async function payEndFee() {
   if (!wallet?.signer) return 'skip';
   if (CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') return 'skip';
 
-  setTxStatus('⏳ Đang gửi phí kết thúc…', 'pending');
+  setTxStatus('Sending end fee...', 'pending');
 
   try {
     const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet.signer);
     const fee = await contract.gameEndFee();
-    const tx  = await contract.payGameEnd({ value: fee });
+    
+    // Append builder code bc_zcfcz746 to transaction data
+    const txReq = await contract.payGameEnd.populateTransaction({ value: fee });
+    const builderCodeHex = ethers.hexlify(ethers.toUtf8Bytes('bc_zcfcz746')).replace('0x', '');
+    txReq.data = txReq.data + builderCodeHex;
+    
+    const tx = await wallet.signer.sendTransaction(txReq);
     await tx.wait();
-    setTxStatus('✅ Phí kết thúc đã gửi!', 'success');
+    setTxStatus('End fee sent!', 'success');
     setTimeout(() => setTxStatus('', ''), 3000);
     return 'ok';
   } catch (e) {

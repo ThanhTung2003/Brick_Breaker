@@ -15,7 +15,7 @@
 
   <!-- ── Header ─────────────────────────────────────────────── -->
   <header class="site-header">
-    <h1 class="heading">⬛ Brick Breaker</h1>
+    <h1 class="heading">Brick Breaker</h1>
 
     <div class="header-actions">
       <!-- Wallet -->
@@ -49,7 +49,7 @@
       <div class="overlay-card">
         <p class="overlay-label">Ready?</p>
         <button id="start-game-btn" class="btn btn--primary" onclick="startGame()">Start Game</button>
-        <p class="overlay-hint">Connect your wallet first to play on-chain ⛓️</p>
+        <p class="overlay-hint">Connect your wallet first to play on-chain</p>
       </div>
     </div>
 
@@ -67,15 +67,15 @@
     <div id="tx-overlay" class="overlay-screen" style="display:none">
       <div class="overlay-card">
         <div class="spinner"></div>
-        <p class="overlay-label">Xác nhận giao dịch…</p>
-        <p class="overlay-hint">Vui lòng xác nhận trong MetaMask</p>
+        <p class="overlay-label">Confirming transaction...</p>
+        <p class="overlay-hint">Please confirm in MetaMask</p>
       </div>
     </div>
 
     <!-- Lose screen -->
     <div class="lose overlay-screen" style="display:none">
       <div class="overlay-card">
-        <h2>💥 GAME OVER</h2>
+        <h2>GAME OVER</h2>
         <p>Better luck next time!</p>
         <button class="btn btn--primary" onclick="window.location.reload()">Restart</button>
       </div>
@@ -84,7 +84,7 @@
     <!-- Win screen -->
     <div class="win overlay-screen" style="display:none">
       <div class="overlay-card">
-        <h2>🏆 YOU WIN!</h2>
+        <h2>YOU WIN!</h2>
         <p>Winner winner chicken dinner!</p>
         <button class="btn btn--primary" onclick="window.location.reload()">Play Again</button>
       </div>
